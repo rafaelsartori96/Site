@@ -1,5 +1,5 @@
 {% extends "layouts/base.html" %}
-{% load bootstrap_tags %}
+{% load bootstrap3 %}
 
 
 {% block title %}
@@ -27,11 +27,17 @@
     (...)
 </p>
 
-<form role="form" method="POST">
-    {% csrf_token %}
-    {{ form|as_bootstrap }}
-    <button type="submit" class="btn btn-primary">Enviar</button>
-</form>
+<div>
+    <form role="form" method="POST">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">
+                {% bootstrap_icon "star" %} Submit
+            </button>
+        {% endbuttons %}
+    </form>
+</div>
 {% endif %}
 
 
