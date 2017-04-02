@@ -1,11 +1,30 @@
 from django.shortcuts import render
-from django.http import Http404
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Q
-from django.core.mail import send_mail
-from django.conf import settings
+from django.core.mail import EmailMessage
 
+import json
+
+from banco_de_provas.forms import ProvaForm
 from banco_de_provas.models import Prova
+
+config = json.load(open('config.json'))
+
+FROM_EMAIL = config['EMAIL_NAME'] + ' <' + config['EMAIL_HOST_USER'] + '>'
+MSG_ADICAO_PROVA ="""
+    Uma prova foi inserida no banco de provas.
+    Visite a página http://www.caco.ic.unicamp.br/portal/adminbanco_de_provas/prova/{0}/
+    e revise as informações antes de aprovar.
+
+    Matéria     : {1}
+    Semestre    : {2}
+    Tipo        : {3}
+    Professor   : {4}
+
+    """
+MSG_AGRADECIMENTO="""
+    Obrigado por contribuir com o banco de provas.
+    """
 
 # Views relativas ao banco de provas
 def BancoView(request):
@@ -19,58 +38,49 @@ def BancoView(request):
     return render(request, 'banco_provas.html', {'resultados':resultados})
 
 
-
-
 @csrf_protect
 def enviar(request):
     if request.method == 'GET':
-        return render(request, 'form_bp.html')
+        return render(request, 'form_bp.html', {"form": ProvaForm})
 
+    # Caso a requisao seja post...
+    # (Talvez seja melhor ser explicitamente post, e isso acontece em mais
+    #  locais do código)
+    form = ProvaForm(request.POST, request.FILES)
 
-    # dados da submissão
-    sub = [request.POST['materia'], request.POST['tipo'],
-            request.POST['semestre'], request.POST['professor']]
+    print("Form : " + str(form))
 
+    if form.is_valid():
+        # Salva a prova no banco de prova
+        prova = form.save()
 
-    # a submissão não possui todos os dados obrigatórios
-    if not (sub[0] and sub[1] and request.FILES['prova']):
-        return render(request, 'form_bp.html', {'erro': True})
+        print(prova)
 
-    # deixa tudo em minúsculas
-    sub = [s.lower() for s in sub]
+        # Para envio do email
+        sjt = '[CACo][Banco de Provas] Adição de prova no Banco de Provas'
+        msg = MSG_ADICAO_PROVA.format(prova.id, prova.materia, prova.semestre,
+                                      prova.tipo, prova.professor)
 
-    # esse formato deixa os nomes dos arquivos mais machine-readable
-    sub = [s.replace(' ','_').replace('-','_') for s in sub]
+        # Faz um novo email
+        email = EmailMessage(
+            sjt,
+            msg,
+            FROM_EMAIL,
+            ['caco@ic.unicamp.br']
+        )
 
+        # Caso esteja no modo debug, nao envia o email, apenas imprime na tela
+        try:
+            email.send()
 
-    # salva a prova
-    prova = Prova(materia = sub[0], tipo = sub[1], semestre = sub[2],
-            professor = sub[3], file = request.FILES['prova'],
-            aprovado = False)
-
-    prova.save()
-
-    mensagem = """
-
-        Uma prova foi inserida no banco de provas.
-        Visite a página http://www.caco.ic.unicamp.br/portal/adminbanco_de_provas/prova/{0}/
-        e revise as informações antes de aprovar.
-
-        Matéria     : {1}
-        Semestre    : {2}
-        Tipo        : {3}
-        Professor   : {4}
-
-        """.format(prova.id, prova.materia, prova.semestre, prova.tipo, prova.professor)
-
-    if settings.DEBUG:
-        print(mensagem)
+            return render(request, 'obrigado.html', {'mensagem': MSG_AGRADECIMENTO})
+        except Exception as inst:
+            print("Erro ao enviar email membros")
+            print(type(inst))
+            print(inst)
     else:
-        send_mail("Banco de Provas: submissão " + str(prova.id), mensagem ,
-            "caco@ic.unicamp.br", ['caco@ic.unicamp.br'])
-
-    ##return render(request, 'form_bp.html')
-    return render(request, 'obrigado.html', {'mensagem': """ Obrigado por contribuir com o banco de provas """})
+        print(form.errors.as_data())
+        return render(request, 'form_bp.html', {"form": ProvaForm})
 
 
 # Implementa a busca no banco de provas. Para entender leia a documentação sobre objetos Q em django

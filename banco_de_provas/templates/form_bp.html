@@ -1,5 +1,5 @@
 {% extends "layouts/base.html" %}
-{% load bootstrap_tags %}
+{% load bootstrap3 %}
 
 {% block title %}Enviar Prova{% endblock %}
 {% block pagtitle%}Envio de Prova - CACo{%endblock%}
@@ -14,41 +14,17 @@ Utilize o formulário abaixo para enviar provas ao banco de provas. As submissõ
 <p>
 Os campos marcados com "*" são obrigatórios.
 </p>
+
 <div>
-    <form method="POST" action="" enctype="multipart/form-data">
+    <form enctype="multipart/form-data" role="form" method="POST">
         {% csrf_token %}
-        <div class="form-group">
-            <label for="subject">Matéria *</label>
-            <input type="text" class="form-control" name="materia" placeholder="Ex: ma111">
-        </div>
-        <div class="form-group">
-            <label for="tipo">Tipo * </label>
-            <input type="text" class="form-control" name="tipo" placeholder="Ex: p2 , p2_res">
-
-        </div>
-        <div class="form-group">
-            <label for="semestre">Semestre</label>
-            <input class="form-control" name="semestre" type="text" placeholder="Ex: 2014s2">
-        </div>
-        <div class="form-group">
-            <label for="professor">Professor</label>
-            <input class="form-control" name="professor" type="text" placeholder="">
-        </div>
-
-        <div class="form-group">
-            <label for="prova">Arquivo *</label>
-            <input type="file" name="prova">
-            <p class="help-block">dê preferência a arquivos PDF.</p>
-        </div>
-        <button type="submit" class="btn btn-primary">Enviar</button>
+        {% bootstrap_form form %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">
+                Submit
+            </button>
+        {% endbuttons %}
     </form>
 </div>
-
-{% if erro %}
-    <div class="erro">
-        Algum dos campos obrigatórios não foi preenchido
-    </div>
-{% endif %}
-
 
 {% endblock %}
