@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'import_export',
     'analytical',
     'bootstrap3',
+    'django_forms_bootstrap',
 
     # Os apps internos
     'sitecaco',
