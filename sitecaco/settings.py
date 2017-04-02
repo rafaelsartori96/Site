@@ -53,7 +53,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_forms_bootstrap',
     'django.contrib.sites',
     'django.contrib.flatpages',
     # 3rd part apps
