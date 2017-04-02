@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'import_export',
     'analytical',
+    'bootstrap3',
 
     # Os apps internos
     'sitecaco',
