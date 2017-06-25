@@ -65,9 +65,9 @@ services:
     image: portainer/portainer
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /var/portainer:/data
     expose:
       - "9000"
-
 
 volumes:
   assets:
