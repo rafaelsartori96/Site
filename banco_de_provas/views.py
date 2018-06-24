@@ -13,7 +13,7 @@ config = json.load(open('config.json'))
 FROM_EMAIL = config['EMAIL_NAME'] + ' <' + config['EMAIL_HOST_USER'] + '>'
 MSG_ADICAO_PROVA ="""
     Uma prova foi inserida no banco de provas.
-    Visite a página http://www.caco.ic.unicamp.br/portal/adminbanco_de_provas/prova/{0}/
+    Visite a página http://www.caco.ic.unicamp.br/adminbanco_de_provas/prova/{0}/
     e revise as informações antes de aprovar.
 
     Matéria     : {1}
