@@ -92,4 +92,4 @@ def busca_BP(busca):
         query_final = query & query_final
 
 
-    return Prova.objects.filter(query_final).filter(aprovado=True).all()
+    return Prova.objects.filter(query_final).filter(aprovado=True).all().order_by('-semestre')
